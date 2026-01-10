@@ -2,7 +2,16 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   basePath: '/news',
-  // Se você for usar imagens externas ou outras configs, adicione aqui
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/news',
+        basePath: false,
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
