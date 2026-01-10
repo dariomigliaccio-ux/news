@@ -26,25 +26,27 @@ export default function MonthCard({ monthName, countries, videoLink, newsletterL
       {/* Buttons Line */}
       <div className="flex flex-col sm:flex-row gap-3">
         {videoLink && (
-          <Link 
-            href={videoLink}
+          <a 
+            href={videoLink.startsWith('http') ? videoLink : `https://${videoLink}`}
             target="_blank"
+            rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white py-3 px-4 rounded-xl font-medium transition-colors"
           >
             <Play className="w-4 h-4 fill-current" />
             <span>Baixar o vídeo</span>
-          </Link>
+          </a>
         )}
         
         {newsletterLink && (
-          <Link 
-            href={newsletterLink}
+          <a 
+            href={newsletterLink.startsWith('http') ? newsletterLink : `https://${newsletterLink}`}
             target="_blank"
+            rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-xl font-medium transition-colors"
           >
             <FileText className="w-4 h-4" />
             <span>Baixar a Newsletter</span>
-          </Link>
+          </a>
         )}
       </div>
     </div>
