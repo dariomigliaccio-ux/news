@@ -42,15 +42,17 @@ export default async function Home() {
 
         <div className="space-y-4">
           {months.length > 0 ? (
-            months.filter(m => m.isActive).map((month) => (
-              <MonthCard 
-                key={month.id}
-                monthName={month.monthName}
-                countries={month.countries}
-                videoLink={month.videoLink || undefined}
-                newsletterLink={month.newsletterLink || undefined}
-              />
-            ))
+            months
+              .filter((m) => m.isActive && m.countries && m.countries.trim() !== "")
+              .map((month) => (
+                <MonthCard 
+                  key={month.id}
+                  monthName={month.monthName}
+                  countries={month.countries}
+                  videoLink={month.videoLink || undefined}
+                  newsletterLink={month.newsletterLink || undefined}
+                />
+              ))
           ) : (
             MONTHS_DEFAULT.map((m, i) => (
               <MonthCard 

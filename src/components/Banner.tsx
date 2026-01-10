@@ -14,7 +14,7 @@ export default function Banner({ title, subtitle, highlightedText, buttonLink }:
       {/* Top Globe Icon */}
       <div className="flex justify-center mb-6">
         <div className="p-3 bg-gray-50 rounded-full">
-          <Globe className="w-8 h-8 text-blue-600" />
+          <Globe className="w-8 h-8 text-gray-900" />
         </div>
       </div>
 
