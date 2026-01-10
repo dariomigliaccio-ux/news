@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Banner {
+  id              Int      @id @default(1)
+  title           String   @default("País do Mês e Newsletter")
+  subtitle        String   @default("Assembly of God Bethlehem Ministry")
+  highlightedText String   @default("Missão urgente")
+  buttonLink      String   @default("#")
+  updatedAt       DateTime @updatedAt
+}
+
+model MonthItem {
+  id             Int      @id @default(autoincrement())
+  monthIndex     Int      @unique // 0 for Jan, 11 for Dec
+  monthName      String
+  countries      String
+  videoLink      String?
+  newsletterLink String?
+  isActive       Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
+}
+
+model AdminUser {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}
+
+model GlobalConfig {
+  id          Int @id @default(1)
+  currentYear Int
+}
