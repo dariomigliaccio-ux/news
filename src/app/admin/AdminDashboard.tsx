@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Save, Loader2, Globe, FileText, Video, Eye, EyeOff } from 'lucide-react';
+import Link from 'next/link';
+import type { MonthItem } from '@prisma/client';
 
 export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
@@ -12,13 +14,9 @@ export default function AdminDashboard() {
     highlightedText: '',
     buttonLink: ''
   });
-  const [months, setMonths] = useState<any[]>([]);
+  const [months, setMonths] = useState<MonthItem[]>([]);
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/data');
       const data = await res.json();
@@ -30,11 +28,15 @@ export default function AdminDashboard() {
       });
       setMonths(data.months);
       setLoading(false);
-    } catch (error) {
-      console.error('Error fetching admin data:', error);
+    } catch {
+      console.error('Error fetching admin data');
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleBannerSave = async () => {
     setSaving(true);
@@ -45,7 +47,7 @@ export default function AdminDashboard() {
         body: JSON.stringify(banner)
       });
       alert('Banner atualizado com sucesso!');
-    } catch (error) {
+    } catch {
       alert('Erro ao salvar banner');
     }
     setSaving(false);
@@ -60,8 +62,8 @@ export default function AdminDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(monthData)
       });
-      alert(`Mês de ${monthData.monthName} atualizado!`);
-    } catch (error) {
+      alert(`Mês de ${monthData?.monthName} atualizado!`);
+    } catch {
       alert('Erro ao salvar mês');
     }
     setSaving(false);
@@ -82,7 +84,7 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Globe className="text-blue-600" /> Painel Administrativo
           </h1>
-          <a href="/" className="text-sm text-blue-600 hover:underline">Ver site →</a>
+          <Link href="/" className="text-sm text-blue-600 hover:underline">Ver site →</Link>
         </header>
 
         {/* Banner Section */}

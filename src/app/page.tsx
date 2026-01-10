@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import Banner from '@/components/Banner';
 import MonthCard from '@/components/MonthCard';
+import { MonthItem } from '@prisma/client';
 
 const FALLBACK_BANNER = {
   title: "País do Mês e Newsletter",
@@ -15,8 +16,8 @@ const MONTHS_DEFAULT = [
 ];
 
 export default async function Home() {
-  let banner;
-  let months = [];
+  let banner = null;
+  let months: MonthItem[] = [];
 
   try {
     banner = await prisma.banner.findFirst();
