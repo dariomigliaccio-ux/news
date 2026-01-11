@@ -2,11 +2,12 @@
 
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, Download } from 'lucide-react';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 
 function ViewPDFContent() {
   const searchParams = useSearchParams();
   const pdfUrl = searchParams.get('url');
+  const [debugMessage, setDebugMessage] = useState('');
 
   console.log('ViewPDFContent - URL recebida:', pdfUrl);
 
@@ -39,48 +40,32 @@ function ViewPDFContent() {
   console.log('ViewPDFContent - URL completa do iframe:', fullPdfUrl);
 
   const handleDownload = () => {
+    setDebugMessage('Iniciando download...');
     console.log('=== INÍCIO DO DOWNLOAD ===');
     console.log('handleDownload - URL original:', pdfUrl);
-    console.log('handleDownload - Tipo de URL:', typeof pdfUrl);
 
     if (!pdfUrl) {
-      console.error('ERRO: URL do PDF está vazia!');
+      setDebugMessage('ERRO: URL vazia!');
       alert('Erro: URL do PDF não está disponível');
       return;
     }
 
     // Abre a URL original do PDF em nova aba para download
     const downloadUrl = pdfUrl.startsWith('http') ? pdfUrl : `https://${pdfUrl}`;
-    console.log('handleDownload - URL para download:', downloadUrl);
+    setDebugMessage(`Abrindo: ${downloadUrl.substring(0, 50)}...`);
 
     try {
-      // Método 1: Tenta com window.open
-      console.log('Tentando método 1: window.open');
-      const newWindow = window.open(downloadUrl, '_blank', 'noopener,noreferrer');
-
-      if (newWindow) {
-        console.log('✓ window.open funcionou!');
-        newWindow.focus();
-      } else {
-        console.log('✗ window.open foi bloqueado, tentando método 2');
-        // Método 2: Cria um link e simula clique
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        console.log('Link criado:', link.href);
-        link.click();
-        console.log('✓ Link clicado');
-        setTimeout(() => document.body.removeChild(link), 100);
-      }
+      // Usa window.location para abrir em apps mobile
+      window.location.href = downloadUrl;
+      setDebugMessage('✓ Redirecionando...');
     } catch (error) {
       console.error('ERRO ao tentar download:', error);
+      setDebugMessage(`ERRO: ${error}`);
       alert(`Erro ao abrir PDF: ${error}`);
     }
 
-    console.log('=== FIM DO DOWNLOAD ===');
+    // Limpa mensagem após 3 segundos
+    setTimeout(() => setDebugMessage(''), 3000);
   };
 
   return (
@@ -92,6 +77,13 @@ function ViewPDFContent() {
         title="PDF Viewer"
         allow="fullscreen"
       />
+
+      {/* Mensagem de debug (visível no mobile) */}
+      {debugMessage && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-900 p-3 text-xs">
+          <p className="font-mono">{debugMessage}</p>
+        </div>
+      )}
 
       {/* Footer fixo embaixo com botões */}
       <footer className="border-t border-gray-200 bg-white p-3 sm:p-4 flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-stretch sm:items-center shadow-lg">
