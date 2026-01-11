@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 import { Suspense } from 'react';
 
 function ViewPDFContent() {
@@ -38,6 +38,23 @@ function ViewPDFContent() {
 
   console.log('ViewPDFContent - URL completa do iframe:', fullPdfUrl);
 
+  const handleDownload = () => {
+    console.log('handleDownload - URL original:', pdfUrl);
+
+    // Abre a URL original do PDF em nova aba para download
+    const downloadUrl = pdfUrl.startsWith('http') ? pdfUrl : `https://${pdfUrl}`;
+    console.log('handleDownload - Abrindo URL:', downloadUrl);
+
+    // Cria um link e simula clique
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* PDF dentro do iframe - ocupa todo espaço disponível */}
@@ -48,8 +65,8 @@ function ViewPDFContent() {
         allow="fullscreen"
       />
 
-      {/* Footer fixo embaixo */}
-      <footer className="border-t border-gray-200 bg-white p-3 sm:p-4 flex justify-center shadow-lg">
+      {/* Footer fixo embaixo com botões */}
+      <footer className="border-t border-gray-200 bg-white p-3 sm:p-4 flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-stretch sm:items-center shadow-lg">
         <button
           onClick={() => {
             // Redireciona para home usando window.location.assign (melhor para apps)
@@ -60,10 +77,18 @@ function ViewPDFContent() {
               window.location.href = '/';
             }
           }}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors active:scale-95 shadow-md"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-4 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-lg transition-colors active:scale-95 shadow-md"
         >
           <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>Voltar para Home</span>
+        </button>
+
+        <button
+          onClick={handleDownload}
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors active:scale-95 shadow-md"
+        >
+          <Download className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span>Baixar PDF</span>
         </button>
       </footer>
     </div>

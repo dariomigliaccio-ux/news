@@ -53,21 +53,20 @@ export default function NewsletterActions({ url }: NewsletterActionsProps) {
 
       console.log('handleDownload - URL de download:', downloadUrl);
 
-      // Para URLs externas (http/https), abre em nova aba
-      // O navegador/app vai decidir se baixa ou visualiza
-      if (downloadUrl.startsWith('http')) {
-        window.open(downloadUrl, '_blank');
-      } else {
-        // Para URLs locais, força download usando anchor element
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = url.split('/').pop() || 'newsletter.pdf';
-        link.target = '_blank';
+      // Cria um link temporário e simula clique
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
 
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      // Para arquivos locais, adiciona atributo download
+      if (url.startsWith('/')) {
+        link.download = url.split('/').pop() || 'newsletter.pdf';
       }
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
       setTimeout(() => setLoading(false), 1000);
 
@@ -75,7 +74,13 @@ export default function NewsletterActions({ url }: NewsletterActionsProps) {
       console.error('Erro ao baixar:', error);
       // Fallback: sempre tenta abrir em nova aba
       const fallbackUrl = url.startsWith('http') ? url : `https://${url}`;
-      window.open(fallbackUrl, '_blank');
+      const link = document.createElement('a');
+      link.href = fallbackUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
       setTimeout(() => setLoading(false), 1000);
     }
   };
