@@ -1,4 +1,5 @@
-import { Globe, Play, FileText } from 'lucide-react';
+import { Globe, Play } from 'lucide-react';
+import NewsletterActions from './NewsletterActions';
 
 interface MonthCardProps {
   monthName: string;
@@ -36,15 +37,9 @@ export default function MonthCard({ monthName, countries, videoLink, newsletterL
         )}
         
         {newsletterLink && (
-          <a 
-            href={newsletterLink.startsWith('http') || newsletterLink.startsWith('/') ? newsletterLink : `https://${newsletterLink}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-900 py-3 px-4 rounded-xl font-medium transition-colors"
-          >
-            <FileText className="w-4 h-4" />
-            <span>Ver Newsletter</span>
-          </a>
+          <div className="flex-1">
+            <NewsletterActions url={newsletterLink} />
+          </div>
         )}
       </div>
     </div>
