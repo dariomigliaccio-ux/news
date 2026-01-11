@@ -34,13 +34,16 @@ function ViewPDFContent() {
       />
 
       {/* Footer fixo embaixo */}
-      <footer className="border-t border-gray-200 bg-white p-3 sm:p-4">
+      <footer className="border-t border-gray-200 bg-white p-3 sm:p-4 flex justify-center">
         <button
-          onClick={() => window.history.back()}
+          onClick={() => {
+            // Redireciona para home
+            window.location.href = '/';
+          }}
           className="inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors active:scale-95"
         >
           <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span>Voltar</span>
+          <span>Voltar para Home</span>
         </button>
       </footer>
     </div>
