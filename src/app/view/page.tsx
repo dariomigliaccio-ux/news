@@ -8,6 +8,8 @@ function ViewPDFContent() {
   const searchParams = useSearchParams();
   const pdfUrl = searchParams.get('url');
 
+  console.log('ViewPDFContent - URL recebida:', pdfUrl);
+
   if (!pdfUrl) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -18,19 +20,32 @@ function ViewPDFContent() {
     );
   }
 
-  const fullPdfUrl = pdfUrl.startsWith('/') 
-    ? `/api/download?url=${encodeURIComponent(pdfUrl)}&mode=inline`
-    : pdfUrl.startsWith('http') 
-    ? pdfUrl 
-    : `https://${pdfUrl}`;
+  // Normaliza a URL
+  let fullPdfUrl = pdfUrl;
+
+  // Se for caminho local, usa a API de download
+  if (pdfUrl.startsWith('/')) {
+    fullPdfUrl = `/api/download?url=${encodeURIComponent(pdfUrl)}&mode=inline`;
+  }
+  // Se não começar com http, adiciona https://
+  else if (!pdfUrl.startsWith('http')) {
+    fullPdfUrl = `https://${pdfUrl}`;
+  }
+  // Se for URL externa, usa Google Docs Viewer para renderizar (funciona melhor com URLs externas)
+  if (pdfUrl.startsWith('http')) {
+    fullPdfUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
+  }
+
+  console.log('ViewPDFContent - URL completa do iframe:', fullPdfUrl);
 
   return (
     <div className="flex flex-col h-screen bg-white">
       {/* PDF dentro do iframe - ocupa todo espaço disponível */}
-      <iframe 
+      <iframe
         src={fullPdfUrl}
         className="flex-1 w-full border-none"
         title="PDF Viewer"
+        allow="fullscreen"
       />
 
       {/* Footer fixo embaixo */}

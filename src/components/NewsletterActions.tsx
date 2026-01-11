@@ -10,10 +10,15 @@ interface NewsletterActionsProps {
 export default function NewsletterActions({ url }: NewsletterActionsProps) {
   const [loading, setLoading] = useState(false);
 
+  // Debug: Log da URL recebida
+  console.log('NewsletterActions - URL recebida:', url);
+
   // Visualizar PDF com iframe + footer
   const handleView = () => {
     setLoading(true);
+    console.log('handleView - URL original:', url);
     const viewUrl = `/view?url=${encodeURIComponent(url)}`;
+    console.log('handleView - URL de visualização:', viewUrl);
 
     setTimeout(() => setLoading(false), 1000);
 
@@ -28,29 +33,49 @@ export default function NewsletterActions({ url }: NewsletterActionsProps) {
   // Forçar Download do PDF
   const handleDownload = () => {
     setLoading(true);
+    console.log('handleDownload - URL original:', url);
 
     try {
-      const downloadUrl = url.startsWith('/')
-        ? `/api/download?url=${encodeURIComponent(url)}&mode=attachment`
-        : url.startsWith('http') ? url : `https://${url}`;
+      let downloadUrl: string;
 
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = url.split('/').pop() || 'newsletter.pdf';
-      link.target = '_blank';
+      // Se for arquivo local, usa API de download
+      if (url.startsWith('/')) {
+        downloadUrl = `/api/download?url=${encodeURIComponent(url)}&mode=attachment`;
+      }
+      // Se for URL externa, abre diretamente
+      else if (url.startsWith('http')) {
+        downloadUrl = url;
+      }
+      // Se não tiver protocolo, adiciona https://
+      else {
+        downloadUrl = `https://${url}`;
+      }
 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      console.log('handleDownload - URL de download:', downloadUrl);
+
+      // Para URLs externas (http/https), abre em nova aba
+      // O navegador/app vai decidir se baixa ou visualiza
+      if (downloadUrl.startsWith('http')) {
+        window.open(downloadUrl, '_blank');
+      } else {
+        // Para URLs locais, força download usando anchor element
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = url.split('/').pop() || 'newsletter.pdf';
+        link.target = '_blank';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
 
       setTimeout(() => setLoading(false), 1000);
 
     } catch (error) {
       console.error('Erro ao baixar:', error);
-      const downloadUrl = url.startsWith('/')
-        ? `/api/download?url=${encodeURIComponent(url)}&mode=attachment`
-        : url;
-      window.open(downloadUrl, '_blank');
+      // Fallback: sempre tenta abrir em nova aba
+      const fallbackUrl = url.startsWith('http') ? url : `https://${url}`;
+      window.open(fallbackUrl, '_blank');
       setTimeout(() => setLoading(false), 1000);
     }
   };
