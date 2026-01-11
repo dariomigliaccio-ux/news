@@ -39,20 +39,48 @@ function ViewPDFContent() {
   console.log('ViewPDFContent - URL completa do iframe:', fullPdfUrl);
 
   const handleDownload = () => {
+    console.log('=== INÍCIO DO DOWNLOAD ===');
     console.log('handleDownload - URL original:', pdfUrl);
+    console.log('handleDownload - Tipo de URL:', typeof pdfUrl);
+
+    if (!pdfUrl) {
+      console.error('ERRO: URL do PDF está vazia!');
+      alert('Erro: URL do PDF não está disponível');
+      return;
+    }
 
     // Abre a URL original do PDF em nova aba para download
     const downloadUrl = pdfUrl.startsWith('http') ? pdfUrl : `https://${pdfUrl}`;
-    console.log('handleDownload - Abrindo URL:', downloadUrl);
+    console.log('handleDownload - URL para download:', downloadUrl);
 
-    // Cria um link e simula clique
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      // Método 1: Tenta com window.open
+      console.log('Tentando método 1: window.open');
+      const newWindow = window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+
+      if (newWindow) {
+        console.log('✓ window.open funcionou!');
+        newWindow.focus();
+      } else {
+        console.log('✗ window.open foi bloqueado, tentando método 2');
+        // Método 2: Cria um link e simula clique
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        console.log('Link criado:', link.href);
+        link.click();
+        console.log('✓ Link clicado');
+        setTimeout(() => document.body.removeChild(link), 100);
+      }
+    } catch (error) {
+      console.error('ERRO ao tentar download:', error);
+      alert(`Erro ao abrir PDF: ${error}`);
+    }
+
+    console.log('=== FIM DO DOWNLOAD ===');
   };
 
   return (
