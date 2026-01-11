@@ -13,6 +13,7 @@ model Banner {
   subtitle        String   @default("Assembly of God Bethlehem Ministry")
   highlightedText String   @default("Missão urgente")
   buttonLink      String   @default("#")
+  homeLink        String   @default("https://adbelem.us")
   updatedAt       DateTime @updatedAt
 }
 

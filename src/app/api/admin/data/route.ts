@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 const MONTHS_NAMES = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -33,10 +35,11 @@ export async function GET() {
       });
     }
 
-    let banner = await prisma.banner.findFirst();
+    let banner = await prisma.banner.findFirst({ where: { id: 1 } });
     if (!banner) {
       banner = await prisma.banner.create({
         data: {
+          id: 1,
           title: "País do Mês e Newsletter",
           subtitle: "Assembly of God Bethlehem Ministry",
           highlightedText: "Missão urgente",

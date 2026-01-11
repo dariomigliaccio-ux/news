@@ -5,15 +5,16 @@ interface BannerProps {
   subtitle: string;
   highlightedText: string;
   buttonLink: string;
+  homeLink: string;
 }
 
-export default function Banner({ title, subtitle, highlightedText, buttonLink }: BannerProps) {
+export default function Banner({ title, subtitle, highlightedText, buttonLink, homeLink }: BannerProps) {
   return (
     <div className="relative bg-white rounded-3xl shadow-sm p-8 md:p-12 text-center max-w-4xl mx-auto mb-8">
       {/* Home button on the top left */}
       <a 
-        href="https://adbelem.us" 
-        className="absolute top-6 left-6 flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-full transition-all border border-gray-100 shadow-sm text-sm font-medium"
+        href={homeLink.startsWith('http') ? homeLink : `https://${homeLink}`}
+        className="absolute top-6 left-6 z-10 flex items-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-2 rounded-full transition-all border border-gray-100 shadow-sm text-sm font-medium"
       >
         <Home className="w-4 h-4" />
         <span>Home</span>
@@ -28,8 +29,8 @@ export default function Banner({ title, subtitle, highlightedText, buttonLink }:
 
       {/* Admin configurable button on the top right */}
       <a 
-        href={buttonLink.startsWith('http') ? buttonLink : `https://${buttonLink}`}
-        target="_blank"
+        href={buttonLink === '#' ? '#' : (buttonLink.startsWith('http') ? buttonLink : `https://${buttonLink}`)}
+        target={buttonLink === '#' ? '_self' : '_blank'}
         rel="noopener noreferrer"
         className="absolute top-6 right-6 p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
       >

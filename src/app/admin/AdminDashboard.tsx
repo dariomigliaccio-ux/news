@@ -12,24 +12,29 @@ export default function AdminDashboard() {
     title: '',
     subtitle: '',
     highlightedText: '',
-    buttonLink: ''
+    buttonLink: '',
+    homeLink: 'https://adbelem.us'
   });
   const [months, setMonths] = useState<MonthItem[]>([]);
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/data');
+      const res = await fetch('/api/admin/data', { cache: 'no-store' });
+      if (!res.ok) throw new Error('Servidor retornou erro ao buscar dados');
       const data = await res.json();
       setBanner(data.banner || {
         title: 'País do Mês e Newsletter',
         subtitle: 'Assembly of God Bethlehem Ministry',
         highlightedText: 'Missão urgente',
-        buttonLink: '#'
+        buttonLink: '#',
+        homeLink: 'https://adbelem.us'
       });
-      setMonths(data.months);
+      setMonths(data.months || []);
       setLoading(false);
-    } catch {
-      console.error('Error fetching admin data');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
+      console.error('Error fetching admin data', err);
+      alert('Erro ao carregar dados no Admin: ' + errorMessage);
       setLoading(false);
     }
   }, []);
@@ -41,14 +46,19 @@ export default function AdminDashboard() {
   const handleBannerSave = async () => {
     setSaving(true);
     try {
-      await fetch('/api/admin/banner', {
+      const res = await fetch('/api/admin/banner', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(banner)
       });
-      alert('Banner atualizado com sucesso!');
+      if (res.ok) {
+        alert('Banner atualizado com sucesso!');
+      } else {
+        const error = await res.json();
+        alert(`Erro ao salvar banner: ${error.error || 'Erro desconhecido'}`);
+      }
     } catch {
-      alert('Erro ao salvar banner');
+      alert('Erro de conexão ao salvar banner');
     }
     setSaving(false);
   };
@@ -57,14 +67,19 @@ export default function AdminDashboard() {
     setSaving(true);
     const monthData = months.find(m => m.monthIndex === monthIndex);
     try {
-      await fetch('/api/admin/months', {
+      const res = await fetch('/api/admin/months', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(monthData)
       });
-      alert(`Mês de ${monthData?.monthName} atualizado!`);
+      if (res.ok) {
+        alert(`Mês de ${monthData?.monthName} atualizado!`);
+      } else {
+        const error = await res.json();
+        alert(`Erro ao salvar mês: ${error.error || 'Erro desconhecido'}`);
+      }
     } catch {
-      alert('Erro ao salvar mês');
+      alert('Erro de conexão ao salvar mês');
     }
     setSaving(false);
   };
@@ -127,6 +142,15 @@ export default function AdminDashboard() {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Link do Botão Home</label>
+              <input 
+                type="text" 
+                value={banner.homeLink}
+                onChange={(e) => setBanner({...banner, homeLink: e.target.value})}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+              />
+            </div>
           </div>
           <button 
             onClick={handleBannerSave}
@@ -177,6 +201,7 @@ export default function AdminDashboard() {
                   </label>
                   <input 
                     type="text" 
+                    placeholder="https://... ou /video.mp4"
                     value={month.videoLink || ''}
                     onChange={(e) => {
                       const newMonths = [...months];
@@ -185,6 +210,7 @@ export default function AdminDashboard() {
                     }}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                   />
+                  <p className="text-[10px] text-gray-500 mt-1">Cole o link do vídeo (YouTube, Drive ou arquivo local).</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 flex items-center gap-1">
@@ -192,6 +218,7 @@ export default function AdminDashboard() {
                   </label>
                   <input 
                     type="text" 
+                    placeholder="https://... ou /arquivo.pdf"
                     value={month.newsletterLink || ''}
                     onChange={(e) => {
                       const newMonths = [...months];
@@ -200,6 +227,7 @@ export default function AdminDashboard() {
                     }}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
                   />
+                  <p className="text-[10px] text-gray-500 mt-1">Cole o link do PDF ou o caminho se estiver no servidor.</p>
                 </div>
               </div>
               <div className="mt-4 flex justify-end">
