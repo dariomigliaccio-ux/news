@@ -2,8 +2,9 @@
 
 import { useSearchParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
+import { Suspense } from 'react';
 
-export default function ViewPDF() {
+function ViewPDFContent() {
   const searchParams = useSearchParams();
   const pdfUrl = searchParams.get('url');
 
@@ -43,5 +44,13 @@ export default function ViewPDF() {
         </button>
       </footer>
     </div>
+  );
+}
+
+export default function ViewPDF() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Carregando...</div>}>
+      <ViewPDFContent />
+    </Suspense>
   );
 }
