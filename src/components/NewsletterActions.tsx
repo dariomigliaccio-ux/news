@@ -11,64 +11,28 @@ export default function NewsletterActions({ url }: NewsletterActionsProps) {
   const [loading, setLoading] = useState(false);
   
   const isLocal = url.startsWith('/');
-  const fullUrl = isLocal ? url : (url.startsWith('http') ? url : `https://${url}`);
-  const fileName = url.split('/').pop() || 'newsletter.pdf';
 
-  // Função para Visualizar (abre no navegador)
+  // Visualizar PDF no navegador (inline)
   const handleView = () => {
     setLoading(true);
-    try {
-      const viewUrl = isLocal 
-        ? `/api/download?url=${encodeURIComponent(url)}&mode=inline`
-        : fullUrl;
-      window.open(viewUrl, '_blank', 'noopener,noreferrer');
-    } catch (error) {
-      console.error('Erro ao visualizar:', error);
-      alert('Erro ao abrir o arquivo');
-    } finally {
-      setLoading(false);
-    }
+    const viewUrl = isLocal 
+      ? `/api/download?url=${encodeURIComponent(url)}&mode=inline`
+      : url.startsWith('http') ? url : `https://${url}`;
+    
+    window.open(viewUrl, '_blank');
+    setLoading(false);
   };
 
-  // Função para Baixar (force download em todos os dispositivos)
+  // Forçar Download do PDF (attachment)
   const handleDownload = () => {
     setLoading(true);
-    try {
-      // Para arquivos locais, usar API com modo attachment
-      // Para links externos, abrir em nova aba (será tratado pelo navegador)
-      const downloadUrl = isLocal 
-        ? `/api/download?url=${encodeURIComponent(url)}&mode=attachment`
-        : fullUrl;
-
-      // Método universal: criar elemento, adicionar ao DOM, clicar e remover
-      const downloadLink = document.createElement('a');
-      downloadLink.href = downloadUrl;
-      downloadLink.download = fileName;
-      downloadLink.setAttribute('target', '_blank');
-      downloadLink.setAttribute('rel', 'noopener noreferrer');
-      downloadLink.style.display = 'none';
-      
-      document.body.appendChild(downloadLink);
-      
-      // Aguarda a renderização do elemento antes de clicar
-      requestAnimationFrame(() => {
-        downloadLink.click();
-      });
-      
-      // Remove após o clique ser processado
-      setTimeout(() => {
-        if (downloadLink.parentNode) {
-          document.body.removeChild(downloadLink);
-        }
-      }, 500);
-      
-    } catch (error) {
-      console.error('Erro no download:', error);
-      // Fallback: abre o arquivo em nova aba
-      window.open(fullUrl, '_blank', 'noopener,noreferrer');
-    } finally {
-      setLoading(false);
-    }
+    const downloadUrl = isLocal 
+      ? `/api/download?url=${encodeURIComponent(url)}&mode=attachment`
+      : url.startsWith('http') ? url : `https://${url}`;
+    
+    // Deixa o navegador lidar com o header Content-Disposition
+    window.location.href = downloadUrl;
+    setLoading(false);
   };
 
   return (
@@ -80,7 +44,7 @@ export default function NewsletterActions({ url }: NewsletterActionsProps) {
       >
         <FileText className="w-4 h-4" />
         <span className="hidden sm:inline">{loading ? 'Abrindo...' : 'Ver'}</span>
-        <span className="inline sm:hidden">{loading ? '...' : 'Ver'}</span>
+        <span className="inline sm:hidden">Ver</span>
       </button>
       
       <button 
@@ -90,7 +54,7 @@ export default function NewsletterActions({ url }: NewsletterActionsProps) {
       >
         <Download className="w-4 h-4" />
         <span className="hidden sm:inline">{loading ? 'Baixando...' : 'Baixar'}</span>
-        <span className="inline sm:hidden">{loading ? '...' : 'Baixar'}</span>
+        <span className="inline sm:hidden">Baixar</span>
       </button>
     </div>
   );
