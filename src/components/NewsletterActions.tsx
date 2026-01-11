@@ -14,64 +14,58 @@ export default function NewsletterActions({ url }: NewsletterActionsProps) {
   const fullUrl = isLocal ? url : (url.startsWith('http') ? url : `https://${url}`);
   const fileName = url.split('/').pop() || 'newsletter.pdf';
 
-  // Função para lidar com Visualização (Técnica 1 - Inline)
-  const handleView = async () => {
+  // Função para Visualizar (abre no navegador)
+  const handleView = () => {
     setLoading(true);
     try {
       const viewUrl = isLocal 
         ? `/api/download?url=${encodeURIComponent(url)}&mode=inline`
         : fullUrl;
-      window.open(viewUrl, '_blank');
+      window.open(viewUrl, '_blank', 'noopener,noreferrer');
     } catch (error) {
-      console.error('Erro ao abrir:', error);
+      console.error('Erro ao visualizar:', error);
       alert('Erro ao abrir o arquivo');
     } finally {
       setLoading(false);
     }
   };
 
-  // Função para lidar com Download (Técnica 1, 2 e 3)
-  const handleDownload = async () => {
+  // Função para Baixar (force download em todos os dispositivos)
+  const handleDownload = () => {
     setLoading(true);
     try {
-      // Técnica 2: Web Share API para Mobile
-      if (navigator.share && isLocal) {
-        try {
-          const response = await fetch(fullUrl);
-          const blob = await response.blob();
-          const file = new File([blob], fileName, { type: 'application/pdf' });
-
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              title: 'Newsletter',
-            });
-            return;
-          }
-        } catch (shareError) {
-          console.log('Web Share não disponível, usando fallback');
-        }
-      }
-
-      // Técnica 1 & 3: Fallback para Desktop ou links externos
+      // Para arquivos locais, usar API com modo attachment
+      // Para links externos, abrir em nova aba (será tratado pelo navegador)
       const downloadUrl = isLocal 
         ? `/api/download?url=${encodeURIComponent(url)}&mode=attachment`
         : fullUrl;
 
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
+      // Método universal: criar elemento, adicionar ao DOM, clicar e remover
+      const downloadLink = document.createElement('a');
+      downloadLink.href = downloadUrl;
+      downloadLink.download = fileName;
+      downloadLink.setAttribute('target', '_blank');
+      downloadLink.setAttribute('rel', 'noopener noreferrer');
+      downloadLink.style.display = 'none';
       
-      // Aguarda um pouco antes de remover
+      document.body.appendChild(downloadLink);
+      
+      // Aguarda a renderização do elemento antes de clicar
+      requestAnimationFrame(() => {
+        downloadLink.click();
+      });
+      
+      // Remove após o clique ser processado
       setTimeout(() => {
-        document.body.removeChild(link);
-      }, 100);
+        if (downloadLink.parentNode) {
+          document.body.removeChild(downloadLink);
+        }
+      }, 500);
+      
     } catch (error) {
       console.error('Erro no download:', error);
-      window.open(fullUrl, '_blank');
+      // Fallback: abre o arquivo em nova aba
+      window.open(fullUrl, '_blank', 'noopener,noreferrer');
     } finally {
       setLoading(false);
     }
@@ -82,19 +76,21 @@ export default function NewsletterActions({ url }: NewsletterActionsProps) {
       <button 
         onClick={handleView}
         disabled={loading}
-        className="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 py-3 px-4 rounded-xl font-medium transition-colors"
+        className="flex-1 flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 py-3 px-4 rounded-xl font-medium transition-colors active:scale-95"
       >
         <FileText className="w-4 h-4" />
-        <span>{loading ? '...' : 'Ver'}</span>
+        <span className="hidden sm:inline">{loading ? 'Abrindo...' : 'Ver'}</span>
+        <span className="inline sm:hidden">{loading ? '...' : 'Ver'}</span>
       </button>
       
       <button 
         onClick={handleDownload}
         disabled={loading}
-        className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 px-4 rounded-xl font-medium transition-colors"
+        className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-3 px-4 rounded-xl font-medium transition-colors active:scale-95"
       >
         <Download className="w-4 h-4" />
-        <span>{loading ? '...' : 'Baixar'}</span>
+        <span className="hidden sm:inline">{loading ? 'Baixando...' : 'Baixar'}</span>
+        <span className="inline sm:hidden">{loading ? '...' : 'Baixar'}</span>
       </button>
     </div>
   );
