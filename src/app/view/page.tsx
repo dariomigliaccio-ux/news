@@ -69,24 +69,26 @@ function ViewPDFContent() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      {/* PDF dentro do iframe - ocupa todo espaço disponível */}
-      <iframe
-        src={fullPdfUrl}
-        className="flex-1 w-full border-none"
-        title="PDF Viewer"
-        allow="fullscreen"
-      />
+    <div className="fixed inset-0 flex flex-col bg-white">
+      {/* PDF dentro do iframe - ocupa espaço disponível menos o footer */}
+      <div className="flex-1 overflow-hidden">
+        <iframe
+          src={fullPdfUrl}
+          className="w-full h-full border-none"
+          title="PDF Viewer"
+          allow="fullscreen"
+        />
+      </div>
 
       {/* Mensagem de debug (visível no mobile) */}
       {debugMessage && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-900 p-3 text-xs">
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-900 p-3 text-xs z-50">
           <p className="font-mono">{debugMessage}</p>
         </div>
       )}
 
-      {/* Footer fixo embaixo com botões */}
-      <footer className="border-t border-gray-200 bg-white p-3 sm:p-4 flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-stretch sm:items-center shadow-lg">
+      {/* Footer SEMPRE FIXO embaixo com botões */}
+      <footer className="flex-shrink-0 border-t border-gray-200 bg-white p-3 sm:p-4 flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-stretch sm:items-center shadow-lg z-50">
         <button
           onClick={() => {
             // Redireciona para home usando window.location.assign (melhor para apps)
