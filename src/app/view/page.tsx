@@ -34,13 +34,18 @@ function ViewPDFContent() {
       />
 
       {/* Footer fixo embaixo */}
-      <footer className="border-t border-gray-200 bg-white p-3 sm:p-4 flex justify-center">
+      <footer className="border-t border-gray-200 bg-white p-3 sm:p-4 flex justify-center shadow-lg">
         <button
           onClick={() => {
-            // Redireciona para home
-            window.location.href = '/';
+            // Redireciona para home usando window.location.assign (melhor para apps)
+            try {
+              window.location.assign('/');
+            } catch (error) {
+              console.error('Erro ao voltar:', error);
+              window.location.href = '/';
+            }
           }}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors active:scale-95"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 sm:py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors active:scale-95 shadow-md"
         >
           <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           <span>Voltar para Home</span>
